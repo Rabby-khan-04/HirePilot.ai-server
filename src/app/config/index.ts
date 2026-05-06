@@ -1,0 +1,17 @@
+import dotenv from "dotenv";
+import path from "node:path";
+
+dotenv.config({ path: path.join(process.cwd(), ".env") });
+
+function require(value: string | undefined, name: string): string {
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name}`);
+  }
+
+  return value;
+}
+
+export const config = {
+  port: require(process.env.PORT, "PORT"),
+  mongodb_uri: require(process.env.MONGODB_URI, "MONGODB_URI"),
+};
