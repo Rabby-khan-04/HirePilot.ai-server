@@ -60,10 +60,27 @@ const getAResume = async (req: Request, res: Response) => {
   });
 };
 
+const getAllResume = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(status.UNAUTHORIZED, "Unauthorized access");
+  }
+
+  const userId = req.user._id as Types.ObjectId;
+  const resume = await ResumeService.getAllResumeFromDB(userId);
+
+  return sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Resume fetched successfully",
+    data: resume,
+  });
+};
+
 const ResumeController = {
   createResume,
   retryParsing,
   getAResume,
+  getAllResume,
 };
 
 export default ResumeController;

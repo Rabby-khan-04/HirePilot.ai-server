@@ -142,10 +142,22 @@ const getAResumeFromDB = async (resumeId: string, userId: Types.ObjectId) => {
   return resume;
 };
 
+const getAllResumeFromDB = async (userId: Types.ObjectId) => {
+  const resume = await Resume.find({ userId }).select({
+    rawText: 0,
+  });
+  if (!resume) {
+    throw new AppError(status.NOT_FOUND, "Resume not found");
+  }
+
+  return resume;
+};
+
 const ResumeService = {
   createResumeIntoDB,
   retryResumeParsing,
   getAResumeFromDB,
+  getAllResumeFromDB,
 };
 
 export default ResumeService;

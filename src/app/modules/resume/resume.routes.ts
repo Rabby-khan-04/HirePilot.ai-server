@@ -22,4 +22,6 @@ router
   .route("/:resumeId")
   .get(AuthMiddleware.verifyJwt, ResumeController.getAResume);
 
+router.route("/").get(AuthMiddleware.verifyJwt, ResumeController.getAllResume);
+
 export default router;
