@@ -1,132 +1,62 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
+import TLearningRoadmap from "./learningRoadmap.interface.js";
 
-import TLearningRoadmap, {
-  TDay,
-  TTask,
-  TWeek,
-} from "./learningRoadmap.interface.js";
+const taskSchema = new Schema({
+  text: { type: String, required: true },
+  resource: { type: String, default: "" },
+  isCompleted: { type: Boolean, default: false },
+});
 
-const taskSchema = new Schema<TTask>(
+const daySchema = new Schema(
   {
-    text: {
-      type: String,
-      required: [true, "Task text is required"],
-      trim: true,
-    },
-
-    resource: {
-      type: String,
-      default: "",
-    },
-
-    isCompleted: {
-      type: Boolean,
-      default: false,
-    },
+    day: { type: Number, required: true },
+    title: { type: String, required: true },
+    tasks: { type: [taskSchema], default: [] },
   },
-  {
-    timestamps: false,
-  },
+  { _id: false },
 );
 
-const daySchema = new Schema<TDay>(
+const weekSchema = new Schema(
   {
-    day: {
-      type: Number,
-      required: [true, "Day number is required"],
-    },
-
-    title: {
-      type: String,
-      required: [true, "Day title is required"],
-      trim: true,
-    },
-
-    tasks: {
-      type: [taskSchema],
-      default: [],
-    },
+    week: { type: Number, required: true },
+    focus: { type: String, required: true },
+    days: { type: [daySchema], default: [] },
   },
-  {
-    _id: false,
-  },
+  { _id: false },
 );
 
-const weekSchema = new Schema<TWeek>(
+const progressSchema = new Schema(
   {
-    week: {
-      type: Number,
-      required: [true, "Week number is required"],
-    },
-
-    focus: {
-      type: String,
-      required: [true, "Week focus is required"],
-      trim: true,
-    },
-
-    days: {
-      type: [daySchema],
-      default: [],
-    },
+    totalTasks: { type: Number, default: 0 },
+    completedTasks: { type: Number, default: 0 },
+    percentage: { type: Number, default: 0 },
   },
-  {
-    _id: false,
-  },
+  { _id: false },
 );
 
 const learningRoadmapSchema = new Schema<TLearningRoadmap>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "User",
-      required: [true, "User ID is required"],
+      required: true,
     },
-
     analysisId: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "AiAnalyses",
-      required: [true, "Analysis ID is required"],
+      required: true,
     },
-
-    title: {
-      type: String,
-      required: [true, "Roadmap title is required"],
-      trim: true,
-    },
-
-    duration: {
-      type: String,
-      required: [true, "Duration is required"],
-      trim: true,
-    },
-
-    roadmap: {
-      type: [weekSchema],
-      default: [],
-    },
-
-    progress: {
-      totalTasks: {
-        type: Number,
-        default: 0,
-      },
-
-      completedTasks: {
-        type: Number,
-        default: 0,
-      },
-
-      percentage: {
-        type: Number,
-        default: 0,
-      },
-    },
+    title: { type: String, required: true },
+    duration: { type: String, required: true },
+    roadmap: { type: [weekSchema], default: [] },
+    progress: { type: progressSchema, required: true },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
+
+// Enforce one roadmap per analysis per user
+learningRoadmapSchema.index({ userId: 1, analysisId: 1 }, { unique: true });
+learningRoadmapSchema.index({ userId: 1 });
 
 const LearningRoadmap = model<TLearningRoadmap>(
   "LearningRoadmap",
