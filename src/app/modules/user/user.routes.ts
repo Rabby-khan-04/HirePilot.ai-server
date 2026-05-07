@@ -16,4 +16,13 @@ router
   .route("/register")
   .post(validateRequest(userValidationSchema), UserController.createUser);
 
+/**
+ * Login a user.
+ * Validates user password and issue token
+ *
+ * @route POST /users/login
+ * @access Public
+ */
+router.route("/login").post(UserController.createUser);
+
 export default router;

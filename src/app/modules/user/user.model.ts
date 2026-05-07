@@ -1,10 +1,10 @@
 import { Schema, model } from "mongoose";
-import TUser, { UserModel } from "./user.inteface.js";
+import TUser, { UserMethods, UserModel } from "./user.inteface.js";
 import bcrypt from "bcrypt";
 import { config } from "../../config/index.js";
 import jwt from "jsonwebtoken";
 
-const userSchema = new Schema<TUser>(
+const userSchema = new Schema<TUser, UserModel, UserMethods>(
   {
     name: {
       type: String,
@@ -70,7 +70,7 @@ userSchema.pre("save", async function () {
 /**
  * Generates a signed JWT access token for authenticated user sessions.
  *
- * @returns {string} JWT access token
+ * @returns  JWT access token
  */
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
@@ -87,7 +87,7 @@ userSchema.methods.generateAccessToken = function () {
 /**
  * Generates a signed JWT refresh token for session renewal.
  *
- * @returns {string} JWT refresh token
+ * @returns  JWT refresh token
  */
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign({ _id: this._id }, config.refresh_token_secret, {

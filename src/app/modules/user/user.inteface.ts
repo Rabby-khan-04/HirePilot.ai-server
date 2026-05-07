@@ -9,7 +9,16 @@ type TUser = {
   refreshToken?: string;
 };
 
-export interface UserModel extends Model<TUser> {
+export interface UserMethods {
+  generateAccessToken(): string;
+  generateRefreshToken(): string;
+}
+
+export interface UserModel extends Model<
+  TUser,
+  Record<string, unknown>,
+  UserMethods
+> {
   isUserExistsByEmail(email: string): Promise<TUser | null>;
   isPasswordMatched(
     plainPassword: string,

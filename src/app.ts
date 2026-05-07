@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { ALLOWED_ORIGIN } from "./constant.js";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -24,6 +25,8 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
 
 // Router Import
 import userRouter from "./app/modules/user/user.routes.js";
