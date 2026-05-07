@@ -6,18 +6,45 @@ const jobProfileSchema = new Schema<TJobProfile>(
     userId: {
       type: Types.ObjectId,
       ref: "User",
-      required: [true, "User ID is required"],
+      required: true,
     },
 
     title: {
       type: String,
-      required: [true, "Job title is required"],
+      required: true,
       trim: true,
     },
 
     jobDescription: {
       type: String,
       default: "",
+    },
+
+    isAiGeneratedDescription: {
+      type: Boolean,
+      default: false,
+    },
+
+    extractedData: {
+      technicalSkills: {
+        type: [String],
+        default: [],
+      },
+
+      softSkills: {
+        type: [String],
+        default: [],
+      },
+
+      experienceLevel: {
+        type: String,
+        default: null,
+      },
+
+      keywords: {
+        type: [String],
+        default: [],
+      },
     },
   },
   {

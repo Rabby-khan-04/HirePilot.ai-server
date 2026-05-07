@@ -1,30 +1,20 @@
-import { Schema, model, Types } from "mongoose";
-import TJobProfile from "./jobProfile.interface.js";
+import { z } from "zod";
 
-const jobProfileSchema = new Schema<TJobProfile>(
-  {
-    userId: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: [true, "User ID is required"],
+export const jobProfileValidationSchema = z.object({
+  title: z.string({
+    error: (iss) => {
+      if (iss.input === undefined) {
+        return { message: "Job title is required" };
+      }
+      return { message: "Job title must be a string" };
     },
+  }),
 
-    title: {
-      type: String,
-      required: [true, "Job title is required"],
-      trim: true,
-    },
-
-    jobDescription: {
-      type: String,
-      default: "",
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-const JobProfile = model<TJobProfile>("JobProfile", jobProfileSchema);
-
-export default JobProfile;
+  jobDescription: z
+    .string({
+      error: () => ({
+        message: "Job description must be a string",
+      }),
+    })
+    .optional(),
+});

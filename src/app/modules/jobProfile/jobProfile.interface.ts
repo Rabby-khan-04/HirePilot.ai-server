@@ -7,10 +7,16 @@ export type TExtractedData = {
   keywords?: string[];
 };
 
-type TJobProfile = {
+export type TJobProfile = {
   userId: Types.ObjectId;
+
   title: string;
+
   jobDescription?: string;
+
+  isAiGeneratedDescription: boolean;
+
+  extractedData?: TExtractedData;
 };
 
 export default TJobProfile;
