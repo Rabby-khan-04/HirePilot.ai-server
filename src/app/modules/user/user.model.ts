@@ -26,6 +26,10 @@ const userSchema = new Schema<TUser>(
       type: String,
       default: null,
     },
+    refreshToken: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

@@ -57,6 +57,7 @@ const resumeSchema = new Schema<TResume>(
     timestamps: true,
   },
 );
+resumeSchema.index({ userId: 1 });
 
 const Resume = model<TResume>("Resume", resumeSchema);
 

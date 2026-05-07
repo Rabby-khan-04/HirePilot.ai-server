@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 import TLearningRoadmap, {
   TDay,
   TRoadmap,
@@ -54,7 +54,7 @@ const roadmapSchema = new Schema<TRoadmap>(
 const learningRoadmapSchema = new Schema<TLearningRoadmap>(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "User ID is required"],
     },

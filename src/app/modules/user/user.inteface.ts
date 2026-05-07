@@ -3,6 +3,7 @@ type TUser = {
   email: string;
   password: string;
   avatar?: string;
+  refreshToken?: string;
 };
 
 export default TUser;

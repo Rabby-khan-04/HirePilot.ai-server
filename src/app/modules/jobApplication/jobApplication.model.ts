@@ -41,7 +41,7 @@ const jobApplicationSchema = new Schema<TJobApplication>(
     },
 
     appliedDate: {
-      type: String,
+      type: Date,
       default: null,
     },
 
