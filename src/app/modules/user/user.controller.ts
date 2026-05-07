@@ -44,6 +44,29 @@ const loginUser = async (req: Request, res: Response) => {
   });
 };
 
-const UserController = { createUser, loginUser };
+const refreshAccessToken = async (req: Request, res: Response) => {
+  const incomingRefreshToken = req.cookies.refreshToken;
+  const data = await UserService.refreshAccessTokenFromDB(incomingRefreshToken);
+
+  res
+    .status(status.OK)
+    .cookie("accessToken", data.accessToken, {
+      ...cookieOptions,
+      maxAge: 60 * 60 * 1000,
+    })
+    .cookie("refreshToken", data.refreshToken, {
+      ...cookieOptions,
+      maxAge: 10 * 24 * 60 * 60 * 1000,
+    });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Token refreshed",
+    data: data.user,
+  });
+};
+
+const UserController = { createUser, loginUser, refreshAccessToken };
 
 export default UserController;

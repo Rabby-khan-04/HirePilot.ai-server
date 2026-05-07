@@ -1,8 +1,10 @@
 import { Types } from "mongoose";
 import AppError from "../../errors/AppError.js";
-import TUser from "./user.inteface.js";
 import User from "./user.model.js";
 import status from "http-status";
+import verifyJwtToken from "../../utils/verifyJwt.js";
+import { config } from "../../config/index.js";
+import TUser from "./user.inteface.js";
 
 const generateAccessAndRefreshToken = async (userId: Types.ObjectId) => {
   const user = await User.findById(userId);
@@ -11,6 +13,8 @@ const generateAccessAndRefreshToken = async (userId: Types.ObjectId) => {
   const refreshToken = user.generateRefreshToken();
 
   user.refreshToken = refreshToken;
+
+  await user.save({ validateBeforeSave: false });
   return { accessToken, refreshToken };
 };
 
@@ -43,7 +47,7 @@ const createUserIntoDB = async (payload: TUser) => {
   return user;
 };
 
-const loginUserFromDB = async function (email: string, password: string) {
+const loginUserFromDB = async (email: string, password: string) => {
   if (!email || !password)
     throw new AppError(
       status.BAD_REQUEST,
@@ -72,6 +76,34 @@ const loginUserFromDB = async function (email: string, password: string) {
   return { user, accessToken, refreshToken };
 };
 
-const UserService = { createUserIntoDB, loginUserFromDB };
+const refreshAccessTokenFromDB = async (token: string) => {
+  if (!token) throw new AppError(status.UNAUTHORIZED, "Unauthorized request!!");
+  const decoded = verifyJwtToken(token, config.refresh_token_secret);
+
+  if (!decoded || typeof decoded === "string") {
+    throw new AppError(status.UNAUTHORIZED, "Invalid token");
+  }
+
+  const user = await User.findById(decoded._id);
+
+  if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid token!!");
+
+  if (token !== user.refreshToken)
+    throw new AppError(status.UNAUTHORIZED, "Unauthorized Access");
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user._id,
+  );
+
+  user.refreshToken = "";
+
+  return { accessToken, refreshToken, user };
+};
+
+const UserService = {
+  createUserIntoDB,
+  loginUserFromDB,
+  refreshAccessTokenFromDB,
+};
 
 export default UserService;
