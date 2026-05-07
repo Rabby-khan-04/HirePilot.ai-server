@@ -5,13 +5,7 @@ export type TSkillGaps = {
   severity: "low" | "medium" | "high";
 };
 
-export type TTechnicalQuestions = {
-  question: string;
-  intention: string;
-  answer: string;
-};
-
-export type TBehavioralQuestions = {
+export type TQuestion = {
   question: string;
   intention: string;
   answer: string;
@@ -30,9 +24,9 @@ type TAiAnalyses = {
 
   suggestions: string[];
 
-  technicalQuestions: TTechnicalQuestions[];
+  technicalQuestions: TQuestion[];
 
-  behavioralQuestions: TBehavioralQuestions[];
+  behavioralQuestions: TQuestion[];
 };
 
 export default TAiAnalyses;
