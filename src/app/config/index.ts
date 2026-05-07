@@ -33,4 +33,6 @@ export const config = {
     process.env.REFRESH_TOKEN_EXPIRY,
     "REFRESH_TOKEN_EXPIRY",
   ) as any,
+
+  google_api_key: getEnv(process.env.GOOGLE_API_KEY, "GOOGLE_API_KEY"),
 };

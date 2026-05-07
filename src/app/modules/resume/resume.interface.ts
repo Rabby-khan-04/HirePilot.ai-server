@@ -26,17 +26,11 @@ export type TProcessingStatus =
 
 type TResume = {
   userId: Types.ObjectId;
-
   title: string;
-
   fileUrl?: string | null;
-
   rawText: string;
-
   parsedData: TParsedData;
-
   processingStatus: TProcessingStatus;
-
   isLatest: boolean;
 };
 
