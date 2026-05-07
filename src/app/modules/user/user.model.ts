@@ -1,5 +1,7 @@
 import { Schema, model } from "mongoose";
-import TUser from "./user.inteface.js";
+import TUser, { UserModel } from "./user.inteface.js";
+import bcrypt from "bcrypt";
+import { config } from "../../config/index.js";
 
 const userSchema = new Schema<TUser>(
   {
@@ -20,6 +22,7 @@ const userSchema = new Schema<TUser>(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
+      select: false,
     },
 
     avatar: {
@@ -36,6 +39,35 @@ const userSchema = new Schema<TUser>(
   },
 );
 
-const User = model<TUser>("User", userSchema);
+userSchema.set("toJSON", {
+  virtuals: true,
+  transform: function (doc, ret: Record<string, unknown>) {
+    delete ret.password;
+    return ret;
+  },
+});
+
+userSchema.pre("save", async function () {
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(config.bcrypt_salt_round),
+  );
+});
+
+userSchema.statics.isUserExistsByEmail = async function (email: string) {
+  const result = await User.findOne({ email });
+  return result;
+};
+
+userSchema.statics.isPasswordMatched = async function (
+  plainPassword,
+  hashPassword,
+) {
+  const passwordMatched = await bcrypt.compare(plainPassword, hashPassword);
+
+  return passwordMatched;
+};
+
+const User = model<TUser, UserModel>("User", userSchema);
 
 export default User;
