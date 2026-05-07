@@ -7,6 +7,8 @@
     "target": "es2020",
     "types": ["node"],
 
+    "typeRoots": ["./node_modules/@types", "./src/app/types"],
+
     "sourceMap": true,
 
     "strict": true,
