@@ -14,4 +14,5 @@ function require(value: string | undefined, name: string): string {
 export const config = {
   port: require(process.env.PORT, "PORT"),
   mongodb_uri: require(process.env.MONGODB_URI, "MONGODB_URI"),
+  node_env: require(process.env.NODE_ENV, "NODE_ENV"),
 };
