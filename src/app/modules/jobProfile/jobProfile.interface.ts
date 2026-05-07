@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 export type TExtractedData = {
   technicalSkills: string[];
   softSkills: string[];
-  experienceLevel?: string;
+  experienceLevel: string | null;
   keywords?: string[];
 };
 
