@@ -13,7 +13,7 @@ import { cookieOptions } from "../../../constant.js";
 const createUser = async (req: Request, res: Response) => {
   const user = await UserService.createUserIntoDB(req.body);
 
-  sendResponse(res, {
+  return sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
     message: "User create successfully!",
@@ -36,7 +36,7 @@ const loginUser = async (req: Request, res: Response) => {
       maxAge: 10 * 24 * 60 * 60 * 1000,
     });
 
-  sendResponse(res, {
+  return sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "User logged in successfully",
@@ -59,7 +59,7 @@ const refreshAccessToken = async (req: Request, res: Response) => {
       maxAge: 10 * 24 * 60 * 60 * 1000,
     });
 
-  sendResponse(res, {
+  return sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "Token refreshed",
@@ -67,6 +67,27 @@ const refreshAccessToken = async (req: Request, res: Response) => {
   });
 };
 
-const UserController = { createUser, loginUser, refreshAccessToken };
+const logoutUser = async (req: Request, res: Response) => {
+  const incomingToken = req.cookies.refreshToken;
+  await UserService.logoutUserAndRemoveTokenFromDB(incomingToken);
+
+  res
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions);
+
+  return sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User logged out successfully!!",
+    data: null,
+  });
+};
+
+const UserController = {
+  createUser,
+  loginUser,
+  refreshAccessToken,
+  logoutUser,
+};
 
 export default UserController;

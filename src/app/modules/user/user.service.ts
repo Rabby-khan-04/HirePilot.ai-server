@@ -100,10 +100,31 @@ const refreshAccessTokenFromDB = async (token: string) => {
   return { accessToken, refreshToken, user };
 };
 
+const logoutUserAndRemoveTokenFromDB = async (token: string) => {
+  if (token) {
+    const decoded = verifyJwtToken(token, config.refresh_token_secret);
+
+    if (!decoded || typeof decoded === "string") {
+      throw new AppError(status.UNAUTHORIZED, "Invalid token");
+    }
+    const user = await User.findById(decoded._id);
+
+    if (!user || token !== user.refreshToken) {
+      throw new AppError(
+        status.UNAUTHORIZED,
+        "Invalid or expired refresh token!!",
+      );
+    }
+
+    await User.findByIdAndUpdate(user._id, { $unset: { refreshToken: 1 } });
+  }
+};
+
 const UserService = {
   createUserIntoDB,
   loginUserFromDB,
   refreshAccessTokenFromDB,
+  logoutUserAndRemoveTokenFromDB,
 };
 
 export default UserService;
