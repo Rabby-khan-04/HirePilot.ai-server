@@ -43,14 +43,20 @@ const createUserIntoDB = async (payload: TUser) => {
   return user;
 };
 
-const loginUser = async function (email: string, password: string) {
-  if (!email)
+const loginUserFromDB = async function (email: string, password: string) {
+  if (!email || !password)
     throw new AppError(
       status.BAD_REQUEST,
       "Credentials are required to login!!",
     );
 
-  const user = await User.findOne({ email }).select({ password: 1 });
+  const user = await User.findOne({ email }).select({
+    password: 1,
+    name: 1,
+    email: 1,
+    role: 1,
+    avatar: 1,
+  });
 
   if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid email!!");
 
@@ -59,11 +65,13 @@ const loginUser = async function (email: string, password: string) {
   if (!passwordMatched)
     throw new AppError(status.UNAUTHORIZED, "Unauthorized Access!!");
 
-  const tokens = await generateAccessAndRefreshToken(user._id);
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user._id,
+  );
 
-  return tokens;
+  return { user, accessToken, refreshToken };
 };
 
-const UserService = { createUserIntoDB, loginUser };
+const UserService = { createUserIntoDB, loginUserFromDB };
 
 export default UserService;

@@ -23,6 +23,6 @@ router
  * @route POST /users/login
  * @access Public
  */
-router.route("/login").post(UserController.createUser);
+router.route("/login").post(UserController.loginUser);
 
 export default router;

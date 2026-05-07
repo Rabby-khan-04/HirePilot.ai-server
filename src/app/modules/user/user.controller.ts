@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import status from "http-status";
 import UserService from "./user.service.js";
 import sendResponse from "../../utils/sendResponse.js";
+import { cookieOptions } from "../../../constant.js";
 
 /**
  *  Creates a new user in the system. It validates the request body,
@@ -20,6 +21,29 @@ const createUser = async (req: Request, res: Response) => {
   });
 };
 
-const UserController = { createUser };
+const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const data = await UserService.loginUserFromDB(email, password);
+
+  res
+    .status(status.OK)
+    .cookie("accessToken", data.accessToken, {
+      ...cookieOptions,
+      maxAge: 60 * 60 * 1000,
+    })
+    .cookie("refreshToken", data.refreshToken, {
+      ...cookieOptions,
+      maxAge: 10 * 24 * 60 * 60 * 1000,
+    });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "User logged in successfully",
+    data: data.user,
+  });
+};
+
+const UserController = { createUser, loginUser };
 
 export default UserController;
