@@ -9,20 +9,20 @@ const router = Router();
  * Registers a new user.
  * Validates request body using Zod schema before passing control to the controller.
  *
- * @route POST /users/register
+ * @route POST /users/user/register
  * @access Public
  */
 router
-  .route("/register")
+  .route("/user/register")
   .post(validateRequest(userValidationSchema), UserController.createUser);
 
 /**
  * Login a user.
  * Validates user password and issue token
  *
- * @route POST /users/login
+ * @route POST /users/user/login
  * @access Public
  */
-router.route("/login").post(UserController.loginUser);
+router.route("/user/login").post(UserController.loginUser);
 
 export default router;
