@@ -43,9 +43,27 @@ const retryParsing = async (req: Request, res: Response) => {
   });
 };
 
+const getAResume = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(status.UNAUTHORIZED, "Unauthorized access");
+  }
+
+  const resumeId = req.params.resumeId as string;
+  const userId = req.user._id as Types.ObjectId;
+  const resume = await ResumeService.getAResumeFromDB(resumeId, userId);
+
+  return sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Resume fetched successfully",
+    data: resume,
+  });
+};
+
 const ResumeController = {
   createResume,
   retryParsing,
+  getAResume,
 };
 
 export default ResumeController;

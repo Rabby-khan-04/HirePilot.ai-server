@@ -1,7 +1,7 @@
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 
 type TUser = {
-  _id: ObjectId;
+  _id?: Types.ObjectId;
   name: string;
   email: string;
   password: string;

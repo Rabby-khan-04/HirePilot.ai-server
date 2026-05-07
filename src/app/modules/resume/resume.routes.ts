@@ -7,7 +7,7 @@ import AuthMiddleware from "../../middlewares/auth.middleware.js";
 const router = Router();
 
 router
-  .route("/resume")
+  .route("/")
   .post(
     AuthMiddleware.verifyJwt,
     validateRequest(resumeValidationSchema),
@@ -15,7 +15,11 @@ router
   );
 
 router
-  .route("/resume/:resumeId/retry-parsing")
+  .route("/:resumeId/retry-parsing")
   .post(AuthMiddleware.verifyJwt, ResumeController.retryParsing);
+
+router
+  .route("/:resumeId")
+  .get(AuthMiddleware.verifyJwt, ResumeController.getAResume);
 
 export default router;

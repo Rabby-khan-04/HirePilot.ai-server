@@ -131,9 +131,21 @@ const retryResumeParsing = async (resumeId: string, userId: Types.ObjectId) => {
   return await Resume.findById(resumeId);
 };
 
+const getAResumeFromDB = async (resumeId: string, userId: Types.ObjectId) => {
+  const resume = await Resume.findOne({ _id: resumeId, userId }).select({
+    rawText: 0,
+  });
+  if (!resume) {
+    throw new AppError(status.NOT_FOUND, "Resume not found");
+  }
+
+  return resume;
+};
+
 const ResumeService = {
   createResumeIntoDB,
   retryResumeParsing,
+  getAResumeFromDB,
 };
 
 export default ResumeService;
