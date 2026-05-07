@@ -30,8 +30,10 @@ app.use(cookieParser());
 
 // Router Import
 import userRouter from "./app/modules/user/user.routes.js";
+import resumeRouter from "./app/modules/resume/resume.routes.js";
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/resumes", resumeRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");

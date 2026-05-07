@@ -1,14 +1,14 @@
 import { Types } from "mongoose";
 
 export type TExperience = {
-  company?: string;
-  role?: string;
+  company?: string | null;
+  role?: string | null;
   description?: string[];
 };
 
 export type TProject = {
-  name?: string;
-  description?: string;
+  name?: string | null;
+  description?: string | null;
   techStack?: string[];
 };
 
@@ -18,12 +18,25 @@ export type TParsedData = {
   projects: TProject[];
 };
 
+export type TProcessingStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed";
+
 type TResume = {
   userId: Types.ObjectId;
+
   title: string;
-  fileUrl?: string;
+
+  fileUrl?: string | null;
+
   rawText: string;
+
   parsedData: TParsedData;
+
+  processingStatus: TProcessingStatus;
+
   isLatest: boolean;
 };
 

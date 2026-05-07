@@ -22,30 +22,66 @@ const resumeSchema = new Schema<TResume>(
 
     rawText: {
       type: String,
-      required: [true, "Raw resume text is required"],
+      default: "",
     },
 
     parsedData: {
-      skills: {
-        type: [String],
-        default: [],
+      type: {
+        skills: {
+          type: [String],
+          default: [],
+        },
+
+        experience: [
+          {
+            company: {
+              type: String,
+              default: null,
+            },
+
+            role: {
+              type: String,
+              default: null,
+            },
+
+            description: {
+              type: [String],
+              default: [],
+            },
+          },
+        ],
+
+        projects: [
+          {
+            name: {
+              type: String,
+              default: null,
+            },
+
+            description: {
+              type: String,
+              default: null,
+            },
+
+            techStack: {
+              type: [String],
+              default: [],
+            },
+          },
+        ],
       },
 
-      experience: [
-        {
-          company: { type: String, default: null },
-          role: { type: String, default: null },
-          description: { type: [String], default: [] },
-        },
-      ],
+      default: {
+        skills: [],
+        experience: [],
+        projects: [],
+      },
+    },
 
-      projects: [
-        {
-          name: { type: String, default: null },
-          description: { type: String, default: null },
-          techStack: { type: [String], default: [] },
-        },
-      ],
+    processingStatus: {
+      type: String,
+      enum: ["pending", "processing", "completed", "failed"],
+      default: "pending",
     },
 
     isLatest: {
@@ -57,6 +93,7 @@ const resumeSchema = new Schema<TResume>(
     timestamps: true,
   },
 );
+
 resumeSchema.index({ userId: 1 });
 
 const Resume = model<TResume>("Resume", resumeSchema);
