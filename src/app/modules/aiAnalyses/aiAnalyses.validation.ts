@@ -1,10 +1,9 @@
 import { z } from "zod";
 
-export const aiAnalysesValidationSchema = z.object({
+export const generateAnalysisValidationSchema = z.object({
   resumeId: z.string({
     error: () => ({ message: "Resume ID is required" }),
   }),
-
   jobProfileId: z.string({
     error: () => ({ message: "Job profile ID is required" }),
   }),

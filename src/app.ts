@@ -32,10 +32,12 @@ app.use(cookieParser());
 import userRouter from "./app/modules/user/user.routes.js";
 import resumeRouter from "./app/modules/resume/resume.routes.js";
 import jobProfileRoute from "./app/modules/jobProfile/jobProfile.routes.js";
+import aiAnalysesRoute from "./app/modules/aiAnalyses/aiAnalyses.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/resumes", resumeRouter);
 app.use("/api/v1/job-profiles", jobProfileRoute);
+app.use("/api/v1/ai-analyses", aiAnalysesRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");

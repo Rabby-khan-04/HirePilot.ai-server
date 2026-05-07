@@ -29,46 +29,38 @@ const aiAnalysesSchema = new Schema<TAiAnalyses>(
       ref: "User",
       required: true,
     },
-
     resumeId: {
       type: Types.ObjectId,
       ref: "Resume",
       required: true,
     },
-
     jobProfileId: {
       type: Types.ObjectId,
       ref: "JobProfile",
       required: true,
     },
-
     score: {
       type: Number,
       min: 0,
       max: 100,
       required: true,
     },
-
     matchedSkills: {
       type: [String],
       default: [],
     },
-
     skillGaps: {
       type: [skillGapSchema],
       default: [],
     },
-
     suggestions: {
       type: [String],
       default: [],
     },
-
     technicalQuestions: {
       type: [questionSchema],
       default: [],
     },
-
     behavioralQuestions: {
       type: [questionSchema],
       default: [],
@@ -78,6 +70,9 @@ const aiAnalysesSchema = new Schema<TAiAnalyses>(
     timestamps: true,
   },
 );
+
+aiAnalysesSchema.index({ userId: 1 });
+aiAnalysesSchema.index({ resumeId: 1, jobProfileId: 1 });
 
 const AiAnalyses = model<TAiAnalyses>("AiAnalyses", aiAnalysesSchema);
 

@@ -32,6 +32,7 @@ const verifyJwt = catchAsync(
       if (!user) throw new AppError(status.UNAUTHORIZED, "Unauthorized Access");
 
       req.user = user;
+
       next();
     } catch (error: unknown) {
       //   console.err(`Token verification ERROR: ${error}`);
