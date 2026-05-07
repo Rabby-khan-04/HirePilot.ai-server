@@ -1,8 +1,9 @@
 import { Schema, model } from "mongoose";
+
 import TLearningRoadmap, {
   TDay,
-  TRoadmap,
   TTask,
+  TWeek,
 } from "./learningRoadmap.interface.js";
 
 const taskSchema = new Schema<TTask>(
@@ -10,13 +11,22 @@ const taskSchema = new Schema<TTask>(
     text: {
       type: String,
       required: [true, "Task text is required"],
+      trim: true,
     },
+
+    resource: {
+      type: String,
+      default: "",
+    },
+
     isCompleted: {
       type: Boolean,
       default: false,
     },
   },
-  { _id: false },
+  {
+    timestamps: false,
+  },
 );
 
 const daySchema = new Schema<TDay>(
@@ -25,30 +35,44 @@ const daySchema = new Schema<TDay>(
       type: Number,
       required: [true, "Day number is required"],
     },
+
     title: {
       type: String,
       required: [true, "Day title is required"],
+      trim: true,
     },
+
     tasks: {
       type: [taskSchema],
       default: [],
     },
   },
-  { _id: false },
+  {
+    _id: false,
+  },
 );
 
-const roadmapSchema = new Schema<TRoadmap>(
+const weekSchema = new Schema<TWeek>(
   {
     week: {
       type: Number,
       required: [true, "Week number is required"],
     },
+
+    focus: {
+      type: String,
+      required: [true, "Week focus is required"],
+      trim: true,
+    },
+
     days: {
       type: [daySchema],
       default: [],
     },
   },
-  { _id: false },
+  {
+    _id: false,
+  },
 );
 
 const learningRoadmapSchema = new Schema<TLearningRoadmap>(
@@ -60,7 +84,8 @@ const learningRoadmapSchema = new Schema<TLearningRoadmap>(
     },
 
     analysisId: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "AiAnalyses",
       required: [true, "Analysis ID is required"],
     },
 
@@ -73,10 +98,11 @@ const learningRoadmapSchema = new Schema<TLearningRoadmap>(
     duration: {
       type: String,
       required: [true, "Duration is required"],
+      trim: true,
     },
 
     roadmap: {
-      type: [roadmapSchema],
+      type: [weekSchema],
       default: [],
     },
 
@@ -85,10 +111,12 @@ const learningRoadmapSchema = new Schema<TLearningRoadmap>(
         type: Number,
         default: 0,
       },
+
       completedTasks: {
         type: Number,
         default: 0,
       },
+
       percentage: {
         type: Number,
         default: 0,
