@@ -5,6 +5,7 @@ type TUser = {
   email: string;
   password: string;
   avatar?: string;
+  role?: "user" | "admin";
   refreshToken?: string;
 };
 

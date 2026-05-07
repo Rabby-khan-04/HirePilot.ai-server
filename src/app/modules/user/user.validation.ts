@@ -28,6 +28,15 @@ export const userValidationSchema = z.object({
     })
     .min(6, { message: "Password must be at least 6 characters long" }),
 
+  role: z
+    .enum(["user", "admin"], {
+      error: (iss) => {
+        if (iss.input === undefined) return { message: "Role is required" };
+        return { message: "Role must be either user or admin" };
+      },
+    })
+    .optional(),
+
   avatar: z
     .url({
       error: (iss) => {
