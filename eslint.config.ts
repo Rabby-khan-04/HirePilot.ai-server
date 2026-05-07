@@ -3,15 +3,36 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
 import prettier from "eslint-config-prettier";
+import jsdoc from "eslint-plugin-jsdoc";
 
 export default defineConfig([
   { ignores: ["node_modules/**", "dist/**", "build/**", "coverage/**"] },
 
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-    plugins: { js },
-    languageOptions: { globals: globals.node },
+
+    plugins: {
+      js,
+      jsdoc, // ✅ register jsdoc plugin
+    },
+
+    languageOptions: {
+      globals: globals.node,
+    },
   },
+
+  // ✅ JSDoc rules (applies to JS + TS if you want)
+  {
+    files: ["**/*.{js,ts}"],
+    rules: {
+      "jsdoc/require-description": "error",
+      "jsdoc/check-values": "error",
+
+      // optional useful ones
+      "jsdoc/require-jsdoc": "off",
+    },
+  },
+
   {
     rules: {
       // safety
@@ -44,6 +65,7 @@ export default defineConfig([
       "prefer-template": "error",
     },
   },
+
   tseslint.configs.recommended,
   prettier,
 ]);

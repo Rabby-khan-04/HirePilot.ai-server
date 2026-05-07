@@ -1,0 +1,63 @@
+import { Schema, Types, model } from "mongoose";
+import TResume from "./resume.interface";
+
+const resumeSchema = new Schema<TResume>(
+  {
+    userId: {
+      type: Types.ObjectId,
+      ref: "User",
+      required: [true, "User ID is required"],
+    },
+
+    title: {
+      type: String,
+      required: [true, "Resume title is required"],
+      trim: true,
+    },
+
+    fileUrl: {
+      type: String,
+      default: null,
+    },
+
+    rawText: {
+      type: String,
+      required: [true, "Raw resume text is required"],
+    },
+
+    parsedData: {
+      skills: {
+        type: [String],
+        default: [],
+      },
+
+      experience: [
+        {
+          company: { type: String, default: null },
+          role: { type: String, default: null },
+          description: { type: [String], default: [] },
+        },
+      ],
+
+      projects: [
+        {
+          name: { type: String, default: null },
+          description: { type: String, default: null },
+          techStack: { type: [String], default: [] },
+        },
+      ],
+    },
+
+    isLatest: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+const Resume = model<TResume>("Resume", resumeSchema);
+
+export default Resume;

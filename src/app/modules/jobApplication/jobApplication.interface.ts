@@ -1,5 +1,7 @@
+import { Types } from "mongoose";
+
 type TJobApplication = {
-  userId: string;
+  userId: Types.ObjectId;
 
   companyName: string;
   roleTitle: string;

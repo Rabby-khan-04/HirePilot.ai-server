@@ -1,22 +1,23 @@
+import { Types } from "mongoose";
+
+export type TTask = {
+  text: string;
+  isCompleted: boolean;
+};
+
+export type TDay = {
+  day: number;
+  title: string;
+  tasks: TTask[];
+};
+
 export type TRoadmap = {
   week: number;
-  days: [
-    {
-      day: number;
-      title: string;
-
-      tasks: [
-        {
-          text: string;
-          isCompleted: boolean;
-        },
-      ];
-    },
-  ];
+  days: TDay[];
 };
 
 type TLearningRoadmap = {
-  userId: string;
+  userId: Types.ObjectId;
   analysisId: string;
 
   title: string;

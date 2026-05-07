@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type TSkillGaps = {
   skill: string;
   severity: "low" | "medium" | "high";
@@ -16,9 +18,9 @@ export type TBehavioralQuestions = {
 };
 
 type TAiAnalyses = {
-  userId: string;
-  resumeId: string;
-  jobProfileId: string;
+  userId: Types.ObjectId;
+  resumeId: Types.ObjectId;
+  jobProfileId: Types.ObjectId;
 
   score: number;
 

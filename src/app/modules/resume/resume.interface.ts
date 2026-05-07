@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type TExperience = {
   company?: string;
   role?: string;
@@ -17,7 +19,7 @@ export type TParsedData = {
 };
 
 type TResume = {
-  userId: string;
+  userId: Types.ObjectId;
   title: string;
   fileUrl?: string;
   rawText: string;

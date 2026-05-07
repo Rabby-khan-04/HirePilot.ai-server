@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type TExtractedData = {
   technicalSkills: string[];
   softSkills: string[];
@@ -6,7 +8,7 @@ export type TExtractedData = {
 };
 
 type TJobProfile = {
-  userId: string;
+  userId: Types.ObjectId;
   title: string;
   jobDescription?: string;
 };
