@@ -1,4 +1,5 @@
 import { CookieOptions } from "express";
+import { config } from "./app/config/index.js";
 
 export const ALLOWED_ORIGIN = [
   "http://localhost:3000",
@@ -7,7 +8,7 @@ export const ALLOWED_ORIGIN = [
 
 export const cookieOptions: CookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: config.node_env === "production",
   sameSite: "lax",
   path: "/",
 };

@@ -26,16 +26,15 @@ const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const data = await UserService.loginUserFromDB(email, password);
 
-  res
-    .status(status.OK)
-    .cookie("accessToken", data.accessToken, {
-      ...cookieOptions,
-      maxAge: 60 * 60 * 1000,
-    })
-    .cookie("refreshToken", data.refreshToken, {
-      ...cookieOptions,
-      maxAge: 10 * 24 * 60 * 60 * 1000,
-    });
+  res.status(status.OK).cookie("accessToken", data.accessToken, {
+    ...cookieOptions,
+    maxAge: 60 * 60 * 1000,
+  });
+
+  res.cookie("refreshToken", data.refreshToken, {
+    ...cookieOptions,
+    maxAge: 10 * 24 * 60 * 60 * 1000,
+  });
 
   return sendResponse(res, {
     statusCode: status.OK,
@@ -49,16 +48,14 @@ const refreshAccessToken = async (req: Request, res: Response) => {
   const incomingRefreshToken = req.cookies.refreshToken;
   const data = await UserService.refreshAccessTokenFromDB(incomingRefreshToken);
 
-  res
-    .status(status.OK)
-    .cookie("accessToken", data.accessToken, {
-      ...cookieOptions,
-      maxAge: 60 * 60 * 1000,
-    })
-    .cookie("refreshToken", data.refreshToken, {
-      ...cookieOptions,
-      maxAge: 10 * 24 * 60 * 60 * 1000,
-    });
+  res.status(status.OK).cookie("accessToken", data.accessToken, {
+    ...cookieOptions,
+    maxAge: 60 * 60 * 1000,
+  });
+  res.cookie("refreshToken", data.refreshToken, {
+    ...cookieOptions,
+    maxAge: 10 * 24 * 60 * 60 * 1000,
+  });
 
   return sendResponse(res, {
     statusCode: status.OK,
@@ -72,9 +69,8 @@ const logoutUser = async (req: Request, res: Response) => {
   const incomingToken = req.cookies.refreshToken;
   await UserService.logoutUserAndRemoveTokenFromDB(incomingToken);
 
-  res
-    .clearCookie("accessToken", cookieOptions)
-    .clearCookie("refreshToken", cookieOptions);
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
 
   return sendResponse(res, {
     success: true,

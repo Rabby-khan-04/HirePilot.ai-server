@@ -60,6 +60,8 @@ const loginUserFromDB = async (email: string, password: string) => {
     email: 1,
     role: 1,
     avatar: 1,
+    createdAt: 1,
+    updatedAt: 1,
   });
 
   if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid email!!");
