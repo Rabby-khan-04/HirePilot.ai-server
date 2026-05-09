@@ -3,6 +3,7 @@ import status from "http-status";
 import UserService from "./user.service.js";
 import sendResponse from "../../utils/sendResponse.js";
 import { cookieOptions } from "../../../constant.js";
+import AppError from "../../errors/AppError.js";
 
 /**
  *  Creates a new user in the system. It validates the request body,
@@ -83,11 +84,31 @@ const logoutUser = async (req: Request, res: Response) => {
   });
 };
 
+const getAUserInfo = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(status.UNAUTHORIZED, "Unauthorized access");
+  }
+  const userId = req?.user._id;
+
+  if (!userId || Array.isArray(userId))
+    throw new AppError(status.BAD_REQUEST, "Invalid User ID");
+
+  const user = await UserService.getAUserInfoFromDB(userId);
+
+  return sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "User fetched successfully",
+    data: user,
+  });
+};
+
 const UserController = {
   createUser,
   loginUser,
   refreshAccessToken,
   logoutUser,
+  getAUserInfo,
 };
 
 export default UserController;

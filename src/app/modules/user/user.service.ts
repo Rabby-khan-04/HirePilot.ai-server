@@ -76,6 +76,13 @@ const loginUserFromDB = async (email: string, password: string) => {
   return { user, accessToken, refreshToken };
 };
 
+const getAUserInfoFromDB = async (userId: Types.ObjectId) => {
+  const user = await User.findById(userId);
+
+  if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid Access!!");
+  return user;
+};
+
 const refreshAccessTokenFromDB = async (token: string) => {
   if (!token) throw new AppError(status.UNAUTHORIZED, "Unauthorized request!!");
   const decoded = verifyJwtToken(token, config.refresh_token_secret);
@@ -125,6 +132,7 @@ const UserService = {
   loginUserFromDB,
   refreshAccessTokenFromDB,
   logoutUserAndRemoveTokenFromDB,
+  getAUserInfoFromDB,
 };
 
 export default UserService;

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { validateRequest } from "../../middlewares/validateRequest.js";
 import { userValidationSchema } from "./user.validation.js";
 import UserController from "./user.controller.js";
+import AuthMiddleware from "../../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -24,6 +25,10 @@ router
  * @access Public
  */
 router.route("/user/login").post(UserController.loginUser);
+
+router
+  .route("/user")
+  .get(AuthMiddleware.verifyJwt, UserController.getAUserInfo);
 
 router.route("/user/refresh-token").post(UserController.refreshAccessToken);
 
