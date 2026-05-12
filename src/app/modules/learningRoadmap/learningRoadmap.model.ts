@@ -40,6 +40,7 @@ const learningRoadmapSchema = new Schema<TLearningRoadmap>(
     analysisId: { type: Types.ObjectId, ref: "AiAnalyses", required: true },
     title: { type: String, required: true },
     duration: { type: String, required: true },
+    description: { type: String, required: true },
     category: { type: String, required: true },
     skills: { type: [String], default: [] },
     roadmap: { type: [weekSchema], default: [] },

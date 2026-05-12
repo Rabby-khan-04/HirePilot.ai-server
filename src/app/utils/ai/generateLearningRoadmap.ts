@@ -25,6 +25,7 @@ const roadmapResultSchema = z.object({
   title: z.string(),
   duration: z.string(),
   category: z.string(),
+  description: z.string(),
   roadmap: z.array(weekResultSchema).min(1).max(4),
 });
 
@@ -42,6 +43,11 @@ const geminiResponseSchema = {
     duration: {
       type: "string",
       description: 'Total duration, e.g. "2 Weeks" or "4 Weeks"',
+    },
+    description: {
+      type: "string",
+      description:
+        "A clear description for the learning roadmap based the roadmap, within 2 or 3 sentences",
     },
     category: {
       type: "string",

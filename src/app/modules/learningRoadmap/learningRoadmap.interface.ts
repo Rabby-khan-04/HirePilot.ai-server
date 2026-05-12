@@ -31,6 +31,7 @@ type TLearningRoadmap = {
   analysisId: Types.ObjectId;
   title: string;
   duration: string;
+  description: string;
   category: string;
   skills: string[];
   roadmap: TWeek[];

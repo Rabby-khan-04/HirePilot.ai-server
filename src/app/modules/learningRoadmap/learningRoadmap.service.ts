@@ -65,6 +65,7 @@ const generateAndSaveRoadmap = async (
     userId,
     analysisId: new Types.ObjectId(analysisId),
     title: aiResult.title,
+    description: aiResult.description,
     duration: aiResult.duration,
     category: aiResult.category,
     skills,
