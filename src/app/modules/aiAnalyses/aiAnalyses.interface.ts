@@ -23,4 +23,12 @@ type TAiAnalyses = {
   behavioralQuestions: TQuestion[];
 };
 
+export interface AnalysesQueryOptions {
+  search?: string;
+  scoreFilter?: "all" | "80-100" | "60-79" | "below-60";
+  sortBy?: "highestMatch" | "mostRecent" | "title";
+  page?: number;
+  limit?: number;
+}
+
 export default TAiAnalyses;

@@ -16,6 +16,7 @@ export type TParsedData = {
   skills: string[];
   experience: TExperience[];
   projects: TProject[];
+  title?: string;
 };
 
 export type TProcessingStatus =
@@ -26,7 +27,7 @@ export type TProcessingStatus =
 
 type TResume = {
   userId: Types.ObjectId;
-  // title: string;
+  title: string;
   fileUrl?: string | null;
   rawText: string;
   parsedData: TParsedData;

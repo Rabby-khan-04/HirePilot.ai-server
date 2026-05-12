@@ -18,7 +18,7 @@ const createResumeIntoDB = async (
   // isLatest starts false — only set true after AI succeeds
   const resume = await Resume.create({
     userId,
-    // title: payload.title,
+    title: "Software Engineer",
     fileUrl: payload.fileUrl,
     rawText: "",
     parsedData: { skills: [], experience: [], projects: [] },
@@ -57,6 +57,10 @@ const createResumeIntoDB = async (
 
     // ✅ AI succeeded — now demote all previous resumes then promote this one
     // Both in one atomic-ish sequence to avoid a window where no resume is latest
+
+    const title = parsedData.title;
+    delete parsedData.title;
+
     await Resume.updateMany(
       {
         userId,
@@ -68,6 +72,7 @@ const createResumeIntoDB = async (
 
     await Resume.findByIdAndUpdate(resume._id, {
       parsedData,
+      title,
       processingStatus: "completed",
       isLatest: true, // ✅ only becomes latest after AI succeeds
     });

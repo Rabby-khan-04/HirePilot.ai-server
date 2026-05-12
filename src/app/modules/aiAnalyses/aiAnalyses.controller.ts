@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import AppError from "../../errors/AppError.js";
 import sendResponse from "../../utils/sendResponse.js";
 import AiAnalysesService from "./aiAnalyses.service.js";
+import { AnalysesQueryOptions } from "./aiAnalyses.interface.js";
 
 const generateAnalysis = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -36,7 +37,25 @@ const getUserAnalyses = async (req: Request, res: Response) => {
   }
 
   const userId = req.user._id as Types.ObjectId;
-  const analyses = await AiAnalysesService.getUserAnalyses(userId);
+
+  const {
+    search = "",
+    scoreFilter = "all",
+    sortBy = "mostRecent",
+    page = "1",
+    limit = "10",
+  } = req.query as Record<string, string>;
+
+  const analyses = await AiAnalysesService.getUserAnalyses(userId, {
+    search,
+    scoreFilter:
+      (scoreFilter as NonNullable<AnalysesQueryOptions["scoreFilter"]>) ??
+      "all",
+    sortBy:
+      (sortBy as NonNullable<AnalysesQueryOptions["sortBy"]>) ?? "mostRecent",
+    page: Math.max(1, parseInt(page, 10) || 1),
+    limit: Math.min(50, Math.max(1, parseInt(limit, 10) || 10)),
+  });
 
   return sendResponse(res, {
     statusCode: status.OK,

@@ -1,10 +1,11 @@
 import status from "http-status";
-import { Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 import AppError from "../../errors/AppError.js";
 import Resume from "../resume/resume.model.js";
 import JobProfile from "../jobProfile/jobProfile.model.js";
 import AiAnalyses from "./aiAnalyses.model.js";
 import generateAnalysis from "../../utils/ai/generateanalysis.js";
+import { AnalysesQueryOptions } from "./aiAnalyses.interface.js";
 
 const computeScore = (
   matchedSkills: string[],
@@ -97,12 +98,150 @@ const generateAndSaveAnalysis = async (
   return analysis;
 };
 
-const getUserAnalyses = async (userId: Types.ObjectId) => {
-  return await AiAnalyses.find({ userId })
-    .populate("resumeId", "title")
-    .populate("jobProfileId", "title")
-    .sort({ createdAt: -1 })
-    .lean();
+const getUserAnalyses = async (
+  userId: Types.ObjectId,
+  opts: AnalysesQueryOptions = {},
+) => {
+  const {
+    search = "",
+    scoreFilter = "all",
+    sortBy = "mostRecent",
+    page = 1,
+    limit = 9,
+  } = opts;
+
+  const skip = (page - 1) * limit;
+
+  // ── 1. Sort map ────────────────────────────────────────────────────────────
+  type SortSpec = Record<string, 1 | -1>;
+  const sortMap: Record<
+    NonNullable<AnalysesQueryOptions["sortBy"]>,
+    SortSpec
+  > = {
+    highestMatch: { score: -1 },
+    mostRecent: { createdAt: -1 },
+    title: { "jobProfile.title": 1 }, // populated field — resolved after $lookup
+  };
+  const sort = sortMap[sortBy] ?? { createdAt: -1 };
+
+  // ── 2. Pipeline ────────────────────────────────────────────────────────────
+  const pipeline: PipelineStage[] = [
+    // ── 2a. Scope to this user ───────────────────────────────────────────────
+    { $match: { userId } },
+
+    // ── 2b. Join Resume → extract title as `role` ────────────────────────────
+    {
+      $lookup: {
+        from: "resumes",
+        localField: "resumeId",
+        foreignField: "_id",
+        as: "_resume",
+      },
+    },
+    {
+      $addFields: {
+        role: { $ifNull: [{ $first: "$_resume.title" }, ""] },
+      },
+    },
+
+    // ── 2c. Join JobProfile → extract title as `title` ───────────────────────
+    {
+      $lookup: {
+        from: "jobprofiles", // mongoose lowercases + pluralises the model name
+        localField: "jobProfileId",
+        foreignField: "_id",
+        as: "_jobProfile",
+      },
+    },
+    {
+      $addFields: {
+        title: { $ifNull: [{ $first: "$_jobProfile.title" }, ""] },
+      },
+    },
+
+    // ── 2d. Score filter ─────────────────────────────────────────────────────
+    ...(scoreFilter !== "all"
+      ? [
+          {
+            $match: (() => {
+              if (scoreFilter === "80-100")
+                return { score: { $gte: 80, $lte: 100 } };
+              if (scoreFilter === "60-79")
+                return { score: { $gte: 60, $lte: 79 } };
+              return { score: { $lt: 60 } }; // below-60
+            })(),
+          } satisfies PipelineStage,
+        ]
+      : []),
+
+    // ── 2e. Search (title = jobProfile title, role = resume title) ───────────
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { title: { $regex: search, $options: "i" } },
+                { role: { $regex: search, $options: "i" } },
+              ],
+            },
+          } satisfies PipelineStage,
+        ]
+      : []),
+
+    // ── 2f. Sort ─────────────────────────────────────────────────────────────
+    { $sort: sort },
+
+    // ── 2g. Facet: data page + total count in one round-trip ─────────────────
+    {
+      $facet: {
+        data: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $project: {
+              // flat, clean fields ─────────────────────────────────
+              title: 1,
+              role: 1,
+              score: 1,
+              createdAt: 1,
+              matchedSkills: { $slice: ["$matchedSkills", 4] },
+              skillGaps: { $slice: ["$skillGaps", 4] },
+              suggestion: { $first: "$suggestions" },
+              interviewQuestionsCount: {
+                $add: [
+                  { $size: "$technicalQuestions" },
+                  { $size: "$behavioralQuestions" },
+                ],
+              },
+              // keep ref ids if the client ever needs them
+              resumeId: 1,
+              jobProfileId: 1,
+            },
+          },
+        ],
+        totalCount: [{ $count: "count" }],
+      },
+    },
+  ];
+
+  const [result] = await AiAnalyses.aggregate(pipeline);
+
+  console.log(result);
+  const analyses = result?.data ?? [];
+
+  const total: number = result?.totalCount?.[0]?.count ?? 0;
+
+  return {
+    analyses,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 const getSingleAnalysis = async (id: string, userId: Types.ObjectId) => {

@@ -19,6 +19,9 @@ const projectSchema = z.object({
 
 const parsedDataSchema = z.object({
   skills: z.array(z.string()),
+  title: z
+    .string()
+    .describe("The main job role or job title from the resume rawText"),
   experience: z.array(experienceSchema),
   projects: z.array(projectSchema),
 });
@@ -28,6 +31,7 @@ const EMPTY_PARSED_DATA: TParsedData = {
   skills: [],
   experience: [],
   projects: [],
+  title: "",
 };
 
 const MAX_RETRIES = 5;
