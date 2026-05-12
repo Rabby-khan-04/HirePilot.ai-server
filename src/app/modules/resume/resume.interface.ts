@@ -26,7 +26,7 @@ export type TProcessingStatus =
 
 type TResume = {
   userId: Types.ObjectId;
-  title: string;
+  // title: string;
   fileUrl?: string | null;
   rawText: string;
   parsedData: TParsedData;

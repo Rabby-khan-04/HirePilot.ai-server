@@ -13,8 +13,6 @@ const verifyJwt = catchAsync(
         req?.cookies?.accessToken ||
         req.header("Authorization")?.replace("Bearer ", "");
 
-      console.log(req.cookies);
-
       if (!token)
         throw new AppError(status.UNAUTHORIZED, "Unauthorized Access!!");
 

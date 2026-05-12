@@ -9,11 +9,11 @@ const resumeSchema = new Schema<TResume>(
       required: [true, "User ID is required"],
     },
 
-    title: {
-      type: String,
-      required: [true, "Resume title is required"],
-      trim: true,
-    },
+    // title: {
+    //   type: String,
+    //   required: [true, "Resume title is required"],
+    //   trim: true,
+    // },
 
     fileUrl: {
       type: String,

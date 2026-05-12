@@ -36,24 +36,17 @@ const progressSchema = new Schema(
 
 const learningRoadmapSchema = new Schema<TLearningRoadmap>(
   {
-    userId: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    analysisId: {
-      type: Types.ObjectId,
-      ref: "AiAnalyses",
-      required: true,
-    },
+    userId: { type: Types.ObjectId, ref: "User", required: true },
+    analysisId: { type: Types.ObjectId, ref: "AiAnalyses", required: true },
     title: { type: String, required: true },
     duration: { type: String, required: true },
+    category: { type: String, required: true },
+    skills: { type: [String], default: [] },
     roadmap: { type: [weekSchema], default: [] },
     progress: { type: progressSchema, required: true },
   },
   { timestamps: true },
 );
-
 // Enforce one roadmap per analysis per user
 learningRoadmapSchema.index({ userId: 1, analysisId: 1 }, { unique: true });
 learningRoadmapSchema.index({ userId: 1 });

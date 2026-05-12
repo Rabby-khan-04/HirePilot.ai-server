@@ -44,7 +44,11 @@ const createUserIntoDB = async (payload: TUser) => {
   if (!user)
     throw new AppError(status.INTERNAL_SERVER_ERROR, "Faild to register user!");
 
-  return user;
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user._id,
+  );
+
+  return { user, accessToken, refreshToken };
 };
 
 const loginUserFromDB = async (email: string, password: string) => {
@@ -69,7 +73,7 @@ const loginUserFromDB = async (email: string, password: string) => {
   const passwordMatched = await User.isPasswordMatched(password, user.password);
 
   if (!passwordMatched)
-    throw new AppError(status.UNAUTHORIZED, "Unauthorized Access!!");
+    throw new AppError(status.UNAUTHORIZED, "Invalid Access!!");
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id,
@@ -79,14 +83,15 @@ const loginUserFromDB = async (email: string, password: string) => {
 };
 
 const getAUserInfoFromDB = async (userId: Types.ObjectId) => {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select({ refreshToken: 0 });
 
-  if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid Access!!");
+  if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid Password!!");
   return user;
 };
 
 const refreshAccessTokenFromDB = async (token: string) => {
   if (!token) throw new AppError(status.UNAUTHORIZED, "Unauthorized request!!");
+
   const decoded = verifyJwtToken(token, config.refresh_token_secret);
 
   if (!decoded || typeof decoded === "string") {

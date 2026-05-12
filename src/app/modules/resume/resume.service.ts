@@ -18,7 +18,7 @@ const createResumeIntoDB = async (
   // isLatest starts false — only set true after AI succeeds
   const resume = await Resume.create({
     userId,
-    title: payload.title,
+    // title: payload.title,
     fileUrl: payload.fileUrl,
     rawText: "",
     parsedData: { skills: [], experience: [], projects: [] },

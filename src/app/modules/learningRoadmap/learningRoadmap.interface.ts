@@ -31,10 +31,19 @@ type TLearningRoadmap = {
   analysisId: Types.ObjectId;
   title: string;
   duration: string;
+  category: string;
+  skills: string[];
   roadmap: TWeek[];
   progress: TProgress;
   createdAt?: Date;
   updatedAt?: Date;
+};
+
+export type RoadmapQueryOptions = {
+  search: string;
+  statusFilter: "all" | "completed" | "in-progress" | "not-started";
+  durationFilter: string; // e.g. "week", "month", "all"
+  sortBy: "updatedAt" | "progress" | "title";
 };
 
 export default TLearningRoadmap;

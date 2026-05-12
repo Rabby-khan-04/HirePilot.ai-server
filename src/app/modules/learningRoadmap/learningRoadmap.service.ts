@@ -6,6 +6,7 @@ import LearningRoadmap from "./learningRoadmap.model.js";
 
 import calculateRoadmapProgress from "../../utils/calculateRoadmapProgress.js";
 import generateLearningRoadmap from "../../utils/ai/generateLearningRoadmap.js";
+import { RoadmapQueryOptions } from "./learningRoadmap.interface.js";
 
 // ─── Generate Roadmap ──────────────────────────────────────────────────────────
 
@@ -57,6 +58,7 @@ const generateAndSaveRoadmap = async (
       })),
     })),
   );
+  const skills = skillGaps.map((g) => g.skill);
 
   // 6. Save roadmap
   const roadmap = await LearningRoadmap.create({
@@ -64,6 +66,8 @@ const generateAndSaveRoadmap = async (
     analysisId: new Types.ObjectId(analysisId),
     title: aiResult.title,
     duration: aiResult.duration,
+    category: aiResult.category,
+    skills,
     roadmap: aiResult.roadmap.map((w) => ({
       ...w,
       days: w.days.map((d) => ({
@@ -90,10 +94,53 @@ const generateAndSaveRoadmap = async (
 
 // ─── Get All User Roadmaps ─────────────────────────────────────────────────────
 
-const getUserRoadmaps = async (userId: Types.ObjectId) => {
-  return await LearningRoadmap.find({ userId })
+const getUserRoadmaps = async (
+  userId: Types.ObjectId,
+  opts: RoadmapQueryOptions,
+) => {
+  const { search, statusFilter, durationFilter, sortBy } = opts;
+
+  // ── 1. Base match ─────────────────────────────────────────────────────────
+  const filter: Record<string, unknown> = { userId };
+
+  // ── 2. Full-text / substring search (title | category | skills) ───────────
+  if (search) {
+    const regex = new RegExp(search, "i");
+    filter.$or = [
+      { title: regex },
+      { category: regex },
+      { skills: regex }, // array field — Mongo matches any element
+    ];
+  }
+
+  // ── 3. Duration filter ────────────────────────────────────────────────────
+  if (durationFilter && durationFilter !== "all") {
+    filter.duration = new RegExp(durationFilter, "i");
+  }
+
+  // ── 4. Progress / status filter ───────────────────────────────────────────
+  //   Stored as a number (0-100) in progress.percentage
+  if (statusFilter === "completed") {
+    filter["progress.percentage"] = 100;
+  } else if (statusFilter === "not-started") {
+    filter["progress.percentage"] = 0;
+  } else if (statusFilter === "in-progress") {
+    filter["progress.percentage"] = { $gt: 0, $lt: 100 };
+  }
+
+  // ── 5. Sort ───────────────────────────────────────────────────────────────
+  type SortSpec = Record<string, 1 | -1>;
+  const sortMap: Record<RoadmapQueryOptions["sortBy"], SortSpec> = {
+    updatedAt: { updatedAt: -1 },
+    progress: { "progress.percentage": -1 },
+    title: { title: 1 },
+  };
+  const sort = sortMap[sortBy] ?? { updatedAt: -1 };
+
+  // ── 6. Query ──────────────────────────────────────────────────────────────
+  return await LearningRoadmap.find(filter)
     .populate("analysisId", "score")
-    .sort({ createdAt: -1 })
+    .sort(sort)
     .lean();
 };
 

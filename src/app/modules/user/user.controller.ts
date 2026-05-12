@@ -12,13 +12,23 @@ import AppError from "../../errors/AppError.js";
  * @access Public
  */
 const createUser = async (req: Request, res: Response) => {
-  const user = await UserService.createUserIntoDB(req.body);
+  const data = await UserService.createUserIntoDB(req.body);
+
+  res.status(status.OK).cookie("accessToken", data.accessToken, {
+    ...cookieOptions,
+    maxAge: 60 * 60 * 1000,
+  });
+
+  res.cookie("refreshToken", data.refreshToken, {
+    ...cookieOptions,
+    maxAge: 10 * 24 * 60 * 60 * 1000,
+  });
 
   return sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
     message: "User create successfully!",
-    data: user,
+    data: data.user,
   });
 };
 
