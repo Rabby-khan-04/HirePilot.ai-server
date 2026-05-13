@@ -22,6 +22,23 @@ const parsedDataSchema = z.object({
   title: z
     .string()
     .describe("The main job role or job title from the resume rawText"),
+  score: z
+    .number()
+    .describe(
+      "An overall scrore out of 100 based on the resume and the job title ",
+    ),
+  insights: z.object({
+    strength: z
+      .string()
+      .describe(
+        "A Clear one or two sentences text about strength based on the rawText",
+      ),
+    improvement: z
+      .string()
+      .describe(
+        "A Clear one or two sentences text about improvemnt based on the rawText",
+      ),
+  }),
   experience: z.array(experienceSchema),
   projects: z.array(projectSchema),
 });
@@ -32,6 +49,11 @@ const EMPTY_PARSED_DATA: TParsedData = {
   experience: [],
   projects: [],
   title: "",
+  score: 0,
+  insights: {
+    strength: "",
+    improvement: "",
+  },
 };
 
 const MAX_RETRIES = 5;

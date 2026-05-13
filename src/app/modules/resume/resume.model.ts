@@ -25,6 +25,18 @@ const resumeSchema = new Schema<TResume>(
       default: "",
     },
 
+    score: {
+      type: Number,
+      default: "",
+    },
+    insights: {
+      type: {
+        strength: { type: String, default: "" },
+        improvement: { type: String, default: "" },
+      },
+      default: {},
+    },
+
     parsedData: {
       type: {
         skills: {

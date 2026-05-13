@@ -34,12 +34,14 @@ import resumeRouter from "./app/modules/resume/resume.routes.js";
 import jobProfileRoute from "./app/modules/jobProfile/jobProfile.routes.js";
 import aiAnalysesRoute from "./app/modules/aiAnalyses/aiAnalyses.routes.js";
 import learningRoadmapsRoute from "./app/modules/learningRoadmap/learningRoadmap.routes.js";
+import dashboardStatsRoute from "./app/modules/dashboardStats/dashboardStats.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/resumes", resumeRouter);
 app.use("/api/v1/job-profiles", jobProfileRoute);
 app.use("/api/v1/ai-analyses", aiAnalysesRoute);
 app.use("/api/v1/learning-roadmaps", learningRoadmapsRoute);
+app.use("/api/v1/dashboard", dashboardStatsRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");

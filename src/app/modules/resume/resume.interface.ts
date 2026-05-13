@@ -20,11 +20,18 @@ export type TProject = {
   techStack?: string[];
 };
 
+export type TInsights = {
+  strength?: string;
+  improvement?: string;
+};
+
 export type TParsedData = {
   skills: string[];
   experience: TExperience[];
   projects: TProject[];
   title?: string;
+  score?: number;
+  insights?: TInsights;
 };
 
 export type TProcessingStatus =
@@ -41,6 +48,8 @@ type TResume = {
   parsedData: TParsedData;
   processingStatus: TProcessingStatus;
   isLatest: boolean;
+  score?: number;
+  insights?: TInsights;
 };
 
 export default TResume;

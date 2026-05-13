@@ -25,6 +25,8 @@ const createResumeIntoDB = async (
     parsedData: { skills: [], experience: [], projects: [] },
     processingStatus: "processing",
     isLatest: false,
+    score: 0,
+    insights: {},
   });
 
   if (!resume) {
@@ -60,7 +62,11 @@ const createResumeIntoDB = async (
     // Both in one atomic-ish sequence to avoid a window where no resume is latest
 
     const title = parsedData.title;
+    const insights = parsedData.insights;
+    const score = parsedData.score;
+    delete parsedData.insights;
     delete parsedData.title;
+    delete parsedData.score;
 
     await Resume.updateMany(
       {
@@ -74,6 +80,8 @@ const createResumeIntoDB = async (
     await Resume.findByIdAndUpdate(resume._id, {
       parsedData,
       title,
+      insights,
+      score,
       processingStatus: "completed",
       isLatest: true, // ✅ only becomes latest after AI succeeds
     });
@@ -138,9 +146,7 @@ const retryResumeParsing = async (resumeId: string, userId: Types.ObjectId) => {
 };
 
 const getAResumeFromDB = async (resumeId: string, userId: Types.ObjectId) => {
-  const resume = await Resume.findOne({ _id: resumeId, userId }).select({
-    rawText: 0,
-  });
+  const resume = await Resume.findOne({ _id: resumeId, userId });
   if (!resume) {
     throw new AppError(status.NOT_FOUND, "Resume not found");
   }
