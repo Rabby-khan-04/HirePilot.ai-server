@@ -1,5 +1,13 @@
 import { Types } from "mongoose";
 
+export type ResumeQueryOptions = {
+  search?: string;
+  statusFilter?: "all" | "pending" | "processing" | "completed" | "failed";
+  sortBy?: "mostRecent" | "oldest" | "title";
+  page?: number;
+  limit?: number;
+};
+
 export type TExperience = {
   company?: string | null;
   role?: string | null;

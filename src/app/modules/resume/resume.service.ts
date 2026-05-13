@@ -1,9 +1,10 @@
 import status from "http-status";
-import { Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 import AppError from "../../errors/AppError.js";
 import extractPdfText from "../../utils/pdf/extractPdfText.js";
 import parseResumeWithAI from "../../utils/ai/parseResumeWithAI.js";
 import Resume from "./resume.model.js";
+import { ResumeQueryOptions } from "./resume.interface.js";
 
 export type TCreateResumePayload = {
   title: string;
@@ -147,15 +148,100 @@ const getAResumeFromDB = async (resumeId: string, userId: Types.ObjectId) => {
   return resume;
 };
 
-const getAllResumeFromDB = async (userId: Types.ObjectId) => {
-  const resume = await Resume.find({ userId }).select({
-    rawText: 0,
-  });
-  if (!resume) {
-    throw new AppError(status.NOT_FOUND, "Resume not found");
-  }
+const getAllResumeFromDB = async (
+  userId: Types.ObjectId,
+  opts: ResumeQueryOptions = {},
+) => {
+  const {
+    search = "",
+    statusFilter = "all",
+    sortBy = "mostRecent",
+    page = 1,
+    limit = 9,
+  } = opts;
 
-  return resume;
+  const skip = (page - 1) * limit;
+
+  // ── Sort map ───────────────────────────────────────────────────────────────
+  type SortSpec = Record<string, 1 | -1>;
+  const sortMap: Record<NonNullable<ResumeQueryOptions["sortBy"]>, SortSpec> = {
+    mostRecent: { createdAt: -1 },
+    oldest: { createdAt: 1 },
+    title: { title: 1 },
+  };
+  const sort = sortMap[sortBy] ?? { createdAt: -1 };
+
+  // ── Pipeline ───────────────────────────────────────────────────────────────
+  const pipeline: PipelineStage[] = [
+    // ── 1. Scope to this user ────────────────────────────────────────────────
+    { $match: { userId } },
+
+    // ── 2. Status filter ─────────────────────────────────────────────────────
+    ...(statusFilter !== "all"
+      ? [{ $match: { processingStatus: statusFilter } } satisfies PipelineStage]
+      : []),
+
+    // ── 3. Search (title only) ───────────────────────────────────────────────
+    ...(search
+      ? [
+          {
+            $match: { title: { $regex: search, $options: "i" } },
+          } satisfies PipelineStage,
+        ]
+      : []),
+
+    // ── 4. Sort ──────────────────────────────────────────────────────────────
+    { $sort: sort },
+
+    // ── 5. Facet: data page + total count in one round-trip ──────────────────
+    {
+      $facet: {
+        data: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $project: {
+              rawText: 0, // excluded — can be large, not needed for list
+              __v: 0,
+              fileUrl: 0,
+            },
+          },
+        ],
+        stats: [
+          {
+            $group: {
+              _id: "$processingStatus",
+              count: { $sum: 1 },
+            },
+          },
+        ],
+        totalCount: [{ $count: "count" }],
+
+        // ── Derived flag: is there already a latest resume? ──────────────────
+        // Lets the client know whether the "mark as latest" action is available
+        latestExists: [{ $match: { isLatest: true } }, { $count: "count" }],
+      },
+    },
+  ];
+
+  const [result] = await Resume.aggregate(pipeline);
+
+  const resumes = result?.data ?? [];
+  const total: number = result?.totalCount?.[0]?.count ?? 0;
+  const hasLatest: boolean = (result?.latestExists?.[0]?.count ?? 0) > 0;
+
+  return {
+    resumes,
+    hasLatest,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 const ResumeService = {

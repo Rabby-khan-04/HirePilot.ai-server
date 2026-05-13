@@ -5,7 +5,7 @@ import Resume from "../resume/resume.model.js";
 import JobProfile from "../jobProfile/jobProfile.model.js";
 import AiAnalyses from "./aiAnalyses.model.js";
 import generateAnalysis from "../../utils/ai/generateanalysis.js";
-import { AnalysesQueryOptions } from "./aiAnalyses.interface.js";
+import TAiAnalyses, { AnalysesQueryOptions } from "./aiAnalyses.interface.js";
 
 const computeScore = (
   matchedSkills: string[],
@@ -225,8 +225,6 @@ const getUserAnalyses = async (
   ];
 
   const [result] = await AiAnalyses.aggregate(pipeline);
-
-  console.log(result);
   const analyses = result?.data ?? [];
 
   const total: number = result?.totalCount?.[0]?.count ?? 0;
@@ -245,10 +243,73 @@ const getUserAnalyses = async (
 };
 
 const getSingleAnalysis = async (id: string, userId: Types.ObjectId) => {
-  const analysis = await AiAnalyses.findOne({ _id: id, userId })
-    .populate("resumeId", "title")
-    .populate("jobProfileId", "title")
-    .lean();
+  const pipeline: PipelineStage[] = [
+    // ── 1. Scope to this user + document ──────────────────────────────────────
+    {
+      $match: {
+        _id: new Types.ObjectId(id),
+        userId,
+      },
+    },
+
+    // ── 2. Join Resume → derive `role` ────────────────────────────────────────
+    {
+      $lookup: {
+        from: "resumes",
+        localField: "resumeId",
+        foreignField: "_id",
+        as: "_resume",
+      },
+    },
+    {
+      $addFields: {
+        role: { $ifNull: [{ $first: "$_resume.title" }, ""] },
+      },
+    },
+
+    // ── 3. Join JobProfile → derive `title` ───────────────────────────────────
+    {
+      $lookup: {
+        from: "jobprofiles",
+        localField: "jobProfileId",
+        foreignField: "_id",
+        as: "_jobProfile",
+      },
+    },
+    {
+      $addFields: {
+        title: { $ifNull: [{ $first: "$_jobProfile.title" }, ""] },
+      },
+    },
+
+    // ── 4. Project all model fields + derived fields, strip lookup temps ───────
+    {
+      $project: {
+        // derived
+        title: 1,
+        role: 1,
+        // model fields
+        userId: 1,
+        resumeId: 1,
+        jobProfileId: 1,
+        score: 1,
+        matchedSkills: 1,
+        skillGaps: 1, // [{ skill, severity }]
+        suggestions: 1, // full array (not sliced like list view)
+        technicalQuestions: 1, // [{ question, intention, answer }]
+        behavioralQuestions: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+  ];
+
+  const [analysis] = await AiAnalyses.aggregate<
+    TAiAnalyses & {
+      title: string;
+      role: string;
+    }
+  >(pipeline);
 
   if (!analysis) throw new AppError(status.NOT_FOUND, "Analysis not found");
 

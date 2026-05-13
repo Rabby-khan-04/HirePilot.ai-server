@@ -34,6 +34,7 @@ const createUser = async (req: Request, res: Response) => {
 
 const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log(email, password);
   const data = await UserService.loginUserFromDB(email, password);
 
   res.status(status.OK).cookie("accessToken", data.accessToken, {
