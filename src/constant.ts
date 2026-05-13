@@ -7,11 +7,11 @@ export const ALLOWED_ORIGIN = [
   "https://hire-pilot-ai.vercel.app",
 ];
 
+const isProd = config.node_env === "production";
+
 export const cookieOptions: CookieOptions = {
   httpOnly: true,
-  // secure: true,
   secure: config.node_env === "production",
-  sameSite: "lax",
-  // sameSite: "none",
+  sameSite: isProd ? "none" : "lax",
   path: "/",
 };
