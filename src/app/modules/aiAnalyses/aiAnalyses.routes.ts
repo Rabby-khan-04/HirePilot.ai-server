@@ -10,16 +10,25 @@ router
   .route("/generate")
   .post(
     AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
     validateRequest(generateAnalysisValidationSchema),
     AiAnalysesController.generateAnalysis,
   );
 
 router
   .route("/")
-  .get(AuthMiddleware.verifyJwt, AiAnalysesController.getUserAnalyses);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    AiAnalysesController.getUserAnalyses,
+  );
 
 router
   .route("/:id")
-  .get(AuthMiddleware.verifyJwt, AiAnalysesController.getSingleAnalysis);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    AiAnalysesController.getSingleAnalysis,
+  );
 
 export default router;

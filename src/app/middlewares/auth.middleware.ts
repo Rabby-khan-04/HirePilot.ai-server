@@ -55,6 +55,29 @@ const verifyJwt = catchAsync(
   },
 );
 
-const AuthMiddleware = { verifyJwt };
+const allowedRole =
+  (...roles: Array<"user" | "admin">) =>
+  (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new AppError(status.UNAUTHORIZED, "Unauthorized Access");
+    }
+
+    const userRole = req.user.role as "user" | "admin";
+
+    // admin always has access regardless of what roles are required
+    if (userRole === "admin") return next();
+
+    // for non-admins check if their role is explicitly listed
+    if (!roles.includes(userRole)) {
+      throw new AppError(
+        status.FORBIDDEN,
+        "You do not have permission to perform this action",
+      );
+    }
+
+    return next();
+  };
+
+const AuthMiddleware = { verifyJwt, allowedRole };
 
 export default AuthMiddleware;

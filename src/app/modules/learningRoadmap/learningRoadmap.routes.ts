@@ -11,6 +11,7 @@ router
   .route("/generate")
   .post(
     AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
     validateRequest(generateRoadmapValidationSchema),
     LearningRoadmapController.generateRoadmap,
   );
@@ -18,19 +19,32 @@ router
 // GET /learning-roadmaps
 router
   .route("/")
-  .get(AuthMiddleware.verifyJwt, LearningRoadmapController.getUserRoadmaps);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    LearningRoadmapController.getUserRoadmaps,
+  );
 
 // GET /learning-roadmaps/:roadmapId
 router
   .route("/:roadmapId")
-  .get(AuthMiddleware.verifyJwt, LearningRoadmapController.getSingleRoadmap)
-  .delete(AuthMiddleware.verifyJwt, LearningRoadmapController.deleteRoadmap);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    LearningRoadmapController.getSingleRoadmap,
+  )
+  .delete(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    LearningRoadmapController.deleteRoadmap,
+  );
 
 // PATCH /learning-roadmaps/:roadmapId/tasks/:taskId/toggle
 router
   .route("/:roadmapId/tasks/:taskId/toggle")
   .patch(
     AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
     LearningRoadmapController.toggleTaskCompletion,
   );
 

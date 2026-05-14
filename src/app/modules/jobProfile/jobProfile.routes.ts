@@ -10,17 +10,30 @@ router
   .route("/")
   .post(
     AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
     validateRequest(jobProfileValidationSchema),
     JobProfileController.createJobProfile,
   )
-  .get(AuthMiddleware.verifyJwt, JobProfileController.getAllJobProfiles);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    JobProfileController.getAllJobProfiles,
+  );
 
 router
   .route("/analysis")
-  .get(AuthMiddleware.verifyJwt, JobProfileController.getJobAnalysis);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    JobProfileController.getJobAnalysis,
+  );
 
 router
   .route("/:id")
-  .get(AuthMiddleware.verifyJwt, JobProfileController.getSingleJobProfile);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    JobProfileController.getSingleJobProfile,
+  );
 
 export default router;

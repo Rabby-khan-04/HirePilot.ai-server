@@ -28,7 +28,11 @@ router.route("/user/login").post(UserController.loginUser);
 
 router
   .route("/user")
-  .get(AuthMiddleware.verifyJwt, UserController.getAUserInfo);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    UserController.getAUserInfo,
+  );
 
 router.route("/user/refresh-token").post(UserController.refreshAccessToken);
 

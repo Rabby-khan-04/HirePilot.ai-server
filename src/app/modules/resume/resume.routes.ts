@@ -10,18 +10,33 @@ router
   .route("/")
   .post(
     AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
     validateRequest(resumeValidationSchema),
     ResumeController.createResume,
   );
 
 router
   .route("/:resumeId/retry-parsing")
-  .post(AuthMiddleware.verifyJwt, ResumeController.retryParsing);
+  .post(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    ResumeController.retryParsing,
+  );
 
 router
   .route("/:resumeId")
-  .get(AuthMiddleware.verifyJwt, ResumeController.getAResume);
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    ResumeController.getAResume,
+  );
 
-router.route("/").get(AuthMiddleware.verifyJwt, ResumeController.getAllResume);
+router
+  .route("/")
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("user"),
+    ResumeController.getAllResume,
+  );
 
 export default router;

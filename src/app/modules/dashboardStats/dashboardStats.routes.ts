@@ -8,6 +8,7 @@ const router = express.Router();
 router.get(
   "/user/stats",
   AuthMiddleware.verifyJwt,
+  AuthMiddleware.allowedRole("user"),
   DashboardStatsController.getUsersDashboardStats,
 );
 
