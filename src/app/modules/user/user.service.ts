@@ -85,7 +85,7 @@ const loginUserFromDB = async (email: string, password: string) => {
 const getAUserInfoFromDB = async (userId: Types.ObjectId) => {
   const user = await User.findById(userId).select({ refreshToken: 0 });
 
-  if (!user) throw new AppError(status.UNAUTHORIZED, "Invalid Password!!");
+  if (!user) throw new AppError(status.UNAUTHORIZED, "Unauthorized Access!!");
   return user;
 };
 
@@ -134,12 +134,24 @@ const logoutUserAndRemoveTokenFromDB = async (token: string) => {
   }
 };
 
+const verifyUserIsAdminFromDB = async (userId: Types.ObjectId) => {
+  const user = await User.findById(userId).select({ refreshToken: 0 });
+
+  if (!user) throw new AppError(status.UNAUTHORIZED, "Unauthorized Access!!");
+
+  if (user.role !== "admin")
+    throw new AppError(status.FORBIDDEN, "Unauthorized Access!!");
+
+  return true;
+};
+
 const UserService = {
   createUserIntoDB,
   loginUserFromDB,
   refreshAccessTokenFromDB,
   logoutUserAndRemoveTokenFromDB,
   getAUserInfoFromDB,
+  verifyUserIsAdminFromDB,
 };
 
 export default UserService;

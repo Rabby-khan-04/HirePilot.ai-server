@@ -38,4 +38,12 @@ router.route("/user/refresh-token").post(UserController.refreshAccessToken);
 
 router.route("/user/logout").post(UserController.logoutUser);
 
+router
+  .route("/auth")
+  .get(
+    AuthMiddleware.verifyJwt,
+    AuthMiddleware.allowedRole("admin"),
+    UserController.verifyUserIsAdmin,
+  );
+
 export default router;

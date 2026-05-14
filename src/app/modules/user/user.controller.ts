@@ -37,7 +37,7 @@ const loginUser = async (req: Request, res: Response) => {
 
   const data = await UserService.loginUserFromDB(email, password);
 
-  res.status(status.OK).cookie("accessToken", data.accessToken, {
+  res.cookie("accessToken", data.accessToken, {
     ...cookieOptions,
     maxAge: 60 * 60 * 1000,
   });
@@ -110,12 +110,33 @@ const getAUserInfo = async (req: Request, res: Response) => {
   });
 };
 
+const verifyUserIsAdmin = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(status.UNAUTHORIZED, "Unauthorized access");
+  }
+  const userId = req?.user._id;
+
+  if (!userId || Array.isArray(userId)) {
+    throw new AppError(status.BAD_REQUEST, "Invalid User ID");
+  }
+
+  await UserService.verifyUserIsAdminFromDB(userId);
+
+  return sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Admin verified",
+    data: true,
+  });
+};
+
 const UserController = {
   createUser,
   loginUser,
   refreshAccessToken,
   logoutUser,
   getAUserInfo,
+  verifyUserIsAdmin,
 };
 
 export default UserController;
